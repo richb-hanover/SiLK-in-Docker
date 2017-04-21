@@ -56,18 +56,19 @@ RUN ls -al \
 # ---------------------------
 # Install FlowBAT
 
-COPY install_flowbat_ubuntu.sh $USERHOME 
+# COPY install_flowbat_ubuntu.sh $USERHOME # 
 
-RUN export TERM=dumb \
-    && ls -al \
-    && sudo chown $USERACCT:$USERACCT install_flowbat_ubuntu.sh \
-    && chmod +x install_flowbat_ubuntu.sh \
-    && export TERM=dumb \
-    && ./install_flowbat_ubuntu.sh
+# RUN export TERM=dumb \
+#     && ls -al \
+#     && sudo chown $USERACCT:$USERACCT install_flowbat_ubuntu.sh \
+#     && chmod +x install_flowbat_ubuntu.sh \
+#     && export TERM=dumb \
+#     && ./install_flowbat_ubuntu.sh
 
 
 CMD pwd \
     && whoami \
     && ls -al \
-    && cd FlowBAT \
-    && /bin/sh -c "while true; do echo hello world; sleep 5; done"
+#     && cd FlowBAT \
+    && cat startup.sh \
+    && sudo /bin/sh startup.sh

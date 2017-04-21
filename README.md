@@ -23,10 +23,8 @@ cd to the directory containing these files and type:
 
 ## To poke around with ssh
 
-Until the container starts up its long-running processes (such as SiLK-related programs, or the FlowBAT server process), it's necessary to give it something to do. The first command runs a *while-true* process so the container stays around.
-
 ```
-docker run -d silk-flowbat /bin/sh -c "while true; do echo hello world; sleep 5; done"
+docker run -d silk-flowbat 
 docker exec -i -t <container-name> /bin/bash
 ```
 

@@ -86,7 +86,7 @@ echo "$(tput setaf 6)This script will install SiLK and YAF with default options,
 #         done
 #         break
 # done
-interface=eth0
+interface="eth0"
 
 cd $workingDir
 
@@ -101,15 +101,15 @@ cd $workingDir
 #       else
 #         if ask "$(tput setaf 3)Do you wish to setup flow collection on boot?$(tput sgr0)"; then
               onBoot=$(echo "---YAF and rwflowpack start on boot")
-              sudo sed -i '$ s,exit 0,/usr/local/sbin/rwflowpack --compression-method=best --sensor-configuration=/data/sensors.conf --site-config-file=/data/silk.conf --output-mode=local-storage --root-directory=/data/ --pidfile=/var/log/rwflowpack.pid --log-level=info --log-directory=/var/log --log-basename=rwflowpack\nexit 0,' /etc/rc.local
-              sudo sed -i "$ s,exit 0,nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=$interface --applabel --max-payload=384 \&\nexit 0," /etc/rc.local
+              # sudo sed -i '$ s,exit 0,/usr/local/sbin/rwflowpack --compression-method=best --sensor-configuration=/data/sensors.conf --site-config-file=/data/silk.conf --output-mode=local-storage --root-directory=/data/ --pidfile=/var/log/rwflowpack.pid --log-level=info --log-directory=/var/log --log-basename=rwflowpack\nexit 0,' /etc/rc.local
+              # sudo sed -i "$ s,exit 0,nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=$interface --applabel --max-payload=384 \&\nexit 0," /etc/rc.local
 #         else
 #               exit 0
 #         fi
 # fi
 
 # if ask "$(tput setaf 3)Would you like to start flow collection after installation?$(tput sgr0)"; then
-  silkstartnow=1 # $(echo "yes")
+  silkstartnow=0 # $(echo "yes")
 # fi
 
 # echo "$(tput setaf 6)Checking installed packages...$(tput sgr0)"
@@ -239,16 +239,23 @@ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat
 gzip -d -c GeoIP.dat.gz | rwgeoip2ccmap --encoded-input > country_codes.pmap
 sudo mv country_codes.pmap /usr/local/share/silk/
 
-# Start up services
-if [ ! -z "$silkstartnow" ]; then
-  startNow=$(echo "---Collection Interface = $interface")
-  sudo /usr/local/sbin/rwflowpack --compression-method=best --sensor-configuration=/data/sensors.conf --site-config-file=/data/silk.conf --output-mode=local-storage --root-directory=/data/ --pidfile=/var/log/rwflowpack.pid --log-level=info --log-directory=/var/log --log-basename=rwflowpack
-  sudo nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=$interface --applabel --max-payload=384 &
-  pidrwflowpack=$(pidof rwflowpack)
-  pidyaf=$(pidof yaf)
-  rwflowpackstatus=$(echo "---rwflowpack pid = $pidrwflowpack")
-  yafstatus=$(echo "---yaf pid = $pidyaf")
-fi
+# Start up services (won't happen in Dockerfile)
+# if [ ! -z "$silkstartnow" ]; then
+#   startNow=$(echo "---Collection Interface = $interface")
+#   sudo /usr/local/sbin/rwflowpack --compression-method=best --sensor-configuration=/data/sensors.conf --site-config-file=/data/silk.conf --output-mode=local-storage --root-directory=/data/ --pidfile=/var/log/rwflowpack.pid --log-level=info --log-directory=/var/log --log-basename=rwflowpack
+#   sudo nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=$interface --applabel --max-payload=384 &
+#   pidrwflowpack=$(pidof rwflowpack)
+#   pidyaf=$(pidof yaf)
+#   rwflowpackstatus=$(echo "---rwflowpack pid = $pidrwflowpack")
+#   yafstatus=$(echo "---yaf pid = $pidyaf")
+# fi
+
+# Build the startup.sh file that gets called when the container is run
+  cd 
+  cat > startup.sh << EOF
+    /usr/local/sbin/rwflowpack --compression-method=best --sensor-configuration=/data/sensors.conf --site-config-file=/data/silk.conf --output-mode=local-storage --root-directory=/data/ --pidfile=/var/log/rwflowpack.pid --log-level=info --log-directory=/var/log --log-basename=rwflowpack
+    nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=$interface --applabel --max-payload=384
+EOF
 
 echo -e "$(tput setaf 2)SiLK and YAF installation finished.$(tput sgr0)"
 echo -e "$(tput setaf 2)$onBoot\n$startNow\n$rwflowpackstatus\n$yafstatus$(tput sgr0)"
