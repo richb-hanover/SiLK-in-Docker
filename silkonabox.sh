@@ -100,7 +100,7 @@ cd $workingDir
 #         fi
 #       else
 #         if ask "$(tput setaf 3)Do you wish to setup flow collection on boot?$(tput sgr0)"; then
-              onBoot=1 # $(echo "---YAF and rwflowpack start on boot")
+              onBoot=$(echo "---YAF and rwflowpack start on boot")
               sudo sed -i '$ s,exit 0,/usr/local/sbin/rwflowpack --compression-method=best --sensor-configuration=/data/sensors.conf --site-config-file=/data/silk.conf --output-mode=local-storage --root-directory=/data/ --pidfile=/var/log/rwflowpack.pid --log-level=info --log-directory=/var/log --log-basename=rwflowpack\nexit 0,' /etc/rc.local
               sudo sed -i "$ s,exit 0,nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=$interface --applabel --max-payload=384 \&\nexit 0," /etc/rc.local
 #         else
@@ -112,25 +112,25 @@ cd $workingDir
   silkstartnow=1 # $(echo "yes")
 # fi
 
-echo "$(tput setaf 6)Checking installed packages...$(tput sgr0)"
-sudo apt-get update -qq
+# echo "$(tput setaf 6)Checking installed packages...$(tput sgr0)"
+# sudo apt-get update -qq
 
 # Install Prerequisites
 echo -e "$(tput setaf 6)Installing Prerequisites. This might require your password and take a few minutes.$(tput sgr0)"
 # echo -e "$(tput setaf 6)   You can ignore messages about "dumb terminal".$(tput sgr0)"
 # sudo apt-get -qq -y install glib2.0 libglib2.0-dev libpcap-dev g++ python-dev make gcc
 
-if which rwp2yaf2silk > /dev/null; then
-        echo -e "$(tput setaf 2)It looks like SiLK might already be installed.$(tput sgr0)"
+# if which rwp2yaf2silk > /dev/null; then
+#        # echo -e "$(tput setaf 2)It looks like SiLK might already be installed.$(tput sgr0)"
 #         if ask "$(tput setaf 3)Do you wish to proceed and try installing anyways?$(tput sgr0)"; then
 #           echo
 #           else
 #           exit 1
 #         fi
-else
+# else
   # Download and Extract SiLK Components
-  if [ ! -f libfixbuf-$lfbversion.tar.gz ]; then
-        echo -e "$(tput setaf 6)libfixbuf-$lfbversion.tar.gz not found. Downloading.$(tput sgr0)"
+  # if [ ! -f libfixbuf-$lfbversion.tar.gz ]; then
+        # echo -e "$(tput setaf 6)libfixbuf-$lfbversion.tar.gz not found. Downloading.$(tput sgr0)"
         wget http://tools.netsa.cert.org/releases/libfixbuf-$lfbversion.tar.gz
 #   else
 #         if ask "$(tput setaf 3)libfixbuf-$lfbversion.tar.gz found. Remove original and download again?$(tput sgr0)"; then
@@ -138,9 +138,10 @@ else
 #             rm libfixbuf-$lfbversion.tar.gz
 #             wget http://tools.netsa.cert.org/releases/libfixbuf-$lfbversion.tar.gz
 #         fi
-  fi
+#  fi
+
   if [ ! -f yaf-$yafversion.tar.gz ]; then
-        echo -e "$(tput setaf 6)yaf-$yafversion.tar.gz not found. Downloading.$(tput sgr0)"
+        # echo -e "$(tput setaf 6)yaf-$yafversion.tar.gz not found. Downloading.$(tput sgr0)"
         wget http://tools.netsa.cert.org/releases/yaf-$yafversion.tar.gz
 #   else
 #           if ask "$(tput setaf 3)yaf-$yafversion.tar.gz found. Remove original and download again?$(tput sgr0)"; then
@@ -150,7 +151,7 @@ else
 #           fi
   fi
   if [ ! -f silk-$silkversion.tar.gz ]; then
-        echo -e "$(tput setaf 6)silk-$silkversion.tar.gz not found. Downloading.$(tput sgr0)"
+        # echo -e "$(tput setaf 6)silk-$silkversion.tar.gz not found. Downloading.$(tput sgr0)"
         wget http://tools.netsa.cert.org/releases/silk-$silkversion.tar.gz
 #   else
 #             if ask "$(tput setaf 3)silk-$silkversion.tar.gz found. Remove original and download again?$(tput sgr0)"; then
@@ -231,7 +232,7 @@ EOF
   >> rwflowpack.conf
   sudo mv rwflowpack.conf /usr/local/etc/
 
-fi
+# fi
 
 ## Download country code database - These can be updated as needed via the commands below
 wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz

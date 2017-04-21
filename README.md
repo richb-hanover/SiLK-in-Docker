@@ -1,7 +1,9 @@
-# SiLK in Docker
+# SiLK and FlowBAT in Docker
 
-Docker image containing SiLK and libfixbuf to collect Netflow info, 
-as well as FlowViewer to provide a graphical display
+Docker image containing SiLK (and associated files) collect Netflow info, 
+as well as FlowBAT to provide a graphical display.
+
+**_THIS DOCKERFILE DOES NOT WORK YET_** I'm posting it to github to see if I can get it working.
 
 SiLK and libfixbuf installed and configured according to CERT.org's instructions:
   HTML: http://tools.netsa.cert.org/silk/silk-install-handbook.html
@@ -12,18 +14,24 @@ The SiLK installation supports:
   - Single (multiple?) exporters
   - No PySiLK
 
-This Dockerfile uses the installation process described in Sections 2, 3, 4 of the Installation Handbook.
-
-
-FlowViewer (https://sourceforge.net/p/flowviewer/wiki/Home/) provides a graphical view on a program that relies on SiLK to store the Netflow records.
-
+FlowBat installed via slimmed-down (non-interactive) versions of *silkonabox.sh* and *install\_flowbat_ubuntu.sh* from [http://FlowBAT.com](http://FlowBAT.com)
 ## To Build the Docker Image
 
-`docker build -t silk-in-doctor .`
+cd to the directory containing these files and type:
 
-References:
+`docker build -t silk-flowbat .`
 
-FlowViewer 4.6 tar: https://superb-sea2.dl.sourceforge.net/project/flowviewer/FlowViewer_4.6.tar
-Flowbat (alternate to FlowViewer): http://flowbat.com
-SiLK installation script (from Flowbat): http://download.flowbat.com/silkonabox.sh
-Other items in the "Reference Material" folder
+## To poke around with ssh
+
+Until the container starts up its long-running processes (such as SiLK-related programs, or the FlowBAT server process), it's necessary to give it something to do. The first command runs a *while-true* process so the container stays around.
+
+```
+docker run -d silk-flowbat /bin/sh -c "while true; do echo hello world; sleep 5; done"
+docker exec -i -t <container-name> /bin/bash
+```
+
+## References
+
+* Flowbat: http://flowbat.com
+* SiLK installation script (from Flowbat): http://download.flowbat.com/silkonabox.sh
+* Other items in the "Reference Material" folder

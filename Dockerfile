@@ -9,33 +9,65 @@ MAINTAINER Rich Brown <richb.hanover@gmail.com>
 ENV LIBFIXBUF_VERSION 1.7.1
 ENV SILK_VERSION 3.15.0
 ENV RRD_TOOL 1.6.0
-# ENV FLOWVIEWER 4.6.1
 
-ENV USERHOME  /root
+ENV USERACCT flowbat
 
-RUN apt-get update 
+# ---------------------------
+# Work as user USERACCT, not root
 
-RUN apt-get -y install \
+RUN useradd -ms /bin/bash $USERACCT \
+    && echo "$USERACCT ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERACCT \
+    && chmod 0440 /etc/sudoers.d/$USERACCT \
+    && ls /etc/sudoers.d \
+    && cat /etc/sudoers.d/README
+
+USER $USERACCT
+WORKDIR /home/$USERACCT
+
+# ---------------------------
+# update and retrieve all packages necessary
+
+RUN sudo apt-get update && sudo apt-get -y install \
     build-essential \
+    checkinstall \
+    curl \
     g++ \
     gcc \
+    git-core \
     glib2.0 \
     libglib2.0-dev \
     libpcap-dev \
     make \
+    mongodb-server \
     python-dev \
     wget
 
-# RUN wget http://download.flowbat.com/silkonabox.sh \
-#     && chmod +x silkonabox.sh \
-#     && export TERM=dumb \
-#     && ./silkonabox.sh
-
-WORKDIR $USERHOME
+# ---------------------------
+# Install SiLK &c
 
 COPY silkonabox.sh $USERHOME
 
 RUN ls -al \ 
+    && sudo chown $USERACCT:$USERACCT silkonabox.sh \
     && chmod +x silkonabox.sh \
     && export TERM=dumb \
     && ./silkonabox.sh
+
+# ---------------------------
+# Install FlowBAT
+
+COPY install_flowbat_ubuntu.sh $USERHOME 
+
+RUN export TERM=dumb \
+    && ls -al \
+    && sudo chown $USERACCT:$USERACCT install_flowbat_ubuntu.sh \
+    && chmod +x install_flowbat_ubuntu.sh \
+    && export TERM=dumb \
+    && ./install_flowbat_ubuntu.sh
+
+
+CMD pwd \
+    && whoami \
+    && ls -al \
+    && cd FlowBAT \
+    && /bin/sh -c "while true; do echo hello world; sleep 5; done"
