@@ -22,7 +22,8 @@ RUN useradd -ms /bin/bash $USERACCT \
     && cat /etc/sudoers.d/README
 
 USER $USERACCT
-WORKDIR /home/$USERACCT
+ENV USERHOME /home/$USERACCT
+WORKDIR $USERHOME
 
 # ---------------------------
 # update and retrieve all packages necessary
@@ -56,16 +57,31 @@ RUN ls -al \
 # ---------------------------
 # Install FlowBAT
 
-# COPY install_flowbat_ubuntu.sh $USERHOME # 
+RUN echo 'Installing node...' \
+    && curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash - \
+    && sudo apt-get -y install nodejs 
 
-# RUN export TERM=dumb \
-#     && ls -al \
-#     && sudo chown $USERACCT:$USERACCT install_flowbat_ubuntu.sh \
-#     && chmod +x install_flowbat_ubuntu.sh \
-#     && export TERM=dumb \
-#     && ./install_flowbat_ubuntu.sh
+RUN echo "Installing Meteor..." \
+    && curl https://install.meteor.com | /bin/sh
 
+RUN echo "Cloning and configuring FlowBAT..." \
+    && cd $USERHOME \
+    && git clone https://github.com/chrissanders/FlowBAT.git 
 
+RUN cd $USERHOME/FlowBAT \ 
+    && cat private/bundle/settings/prod.sample.json | \
+      sed 's/flowbat.com/127.0.0.1:1800/' | \ 
+      sed 's/mailUrl.*/mailUrl": "",/' \
+      > private/bundle/settings/dev.json \
+    && cd private/bundle/programs/server \
+    && npm install
+
+# Create startup configuration file for FlowBAT/
+COPY flowbat.conf $USERHOME/ 
+
+RUN sudo cp $USERHOME/flowbat.conf /etc/init/flowbat.conf
+
+# ====== Icing on the cake - the actual startup script
 CMD pwd \
     && whoami \
     && ls -al \
