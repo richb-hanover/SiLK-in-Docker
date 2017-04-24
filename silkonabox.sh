@@ -252,10 +252,8 @@ sudo mv country_codes.pmap /usr/local/share/silk/
 
 # Build the startup.sh file that gets called when the container is run
   cd 
-  cat > startup.sh << EOF
-    /usr/local/sbin/rwflowpack --compression-method=best --sensor-configuration=/data/sensors.conf --site-config-file=/data/silk.conf --output-mode=local-storage --root-directory=/data/ --pidfile=/var/log/rwflowpack.pid --log-level=info --log-directory=/var/log --log-basename=rwflowpack
-    nohup /usr/local/bin/yaf --silk --ipfix=tcp --live=pcap  --out=127.0.0.1 --ipfix-port=18001 --in=$interface --applabel --max-payload=384
-EOF
+#   cat > startup.sh << EOF
+# EOF
 
 echo -e "$(tput setaf 2)SiLK and YAF installation finished.$(tput sgr0)"
 echo -e "$(tput setaf 2)$onBoot\n$startNow\n$rwflowpackstatus\n$yafstatus$(tput sgr0)"

@@ -24,8 +24,9 @@ cd to the directory containing these files and type:
 ## To poke around with ssh
 
 ```
-docker run -d silk-flowbat 
-docker exec -i -t <container-name> /bin/bash
+docker run -d silk-flowbat                      # start the image, detached from the terminal
+docker ps                                       # to get the container name
+docker exec -i -t *<container-name>* /bin/bash  # get a shell on the running container
 ```
 
 ## References

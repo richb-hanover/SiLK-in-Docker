@@ -58,11 +58,11 @@ RUN ls -al \
 # Install FlowBAT
 
 RUN echo 'Installing node...' \
-    && curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash - \
+    && curl -sL https://deb.nodesource.com/setup | sudo -E bash - \
     && sudo apt-get -y install nodejs 
 
 RUN echo "Installing Meteor..." \
-    && curl https://install.meteor.com | /bin/sh
+    && curl https://install.meteor.com?release=1.1.0.2 | /bin/sh
 
 RUN echo "Cloning and configuring FlowBAT..." \
     && cd $USERHOME \
@@ -73,18 +73,23 @@ RUN cd $USERHOME/FlowBAT \
       sed 's/flowbat.com/127.0.0.1:1800/' | \ 
       sed 's/mailUrl.*/mailUrl": "",/' \
       > private/bundle/settings/dev.json \
-    && cd private/bundle/programs/server \
-    && npm install
+    && (cd private/bundle/programs/server && npm install)
 
-# Create startup configuration file for FlowBAT/
-COPY flowbat.conf $USERHOME/ 
+# # Create startup configuration file for FlowBAT/
+# COPY flowbat.conf $USERHOME/ # 
 
-RUN sudo cp $USERHOME/flowbat.conf /etc/init/flowbat.conf
+# RUN    sed -i "s|USERHOME|$USERHOME|g" $USERHOME/flowbat.conf \
+#     && sed -i "s|USERACCT|$USERACCT|g" $USERHOME/flowbat.conf \
+#     && sudo cp $USERHOME/flowbat.conf /etc/init/flowbat.conf 
 
-# ====== Icing on the cake - the actual startup script
+COPY startInstance.sh $USERHOME/FlowBAT/
+COPY startFlowBAT.sh  $USERHOME/FlowBAT
+
+# ====== Piece de resistance - fire up the startup script when launching the container
 CMD pwd \
     && whoami \
     && ls -al \
-#     && cd FlowBAT \
-    && cat startup.sh \
-    && sudo /bin/sh startup.sh
+    && cd FlowBAT \
+    && cat startInstance.sh \
+    && sudo /bin/sh startInstance.sh
+
